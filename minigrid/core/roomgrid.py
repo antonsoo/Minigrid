@@ -324,14 +324,15 @@ class RoomGrid(MiniGridEnv):
 
         room = self.room_grid[j][i]
 
-        # Find a position that is not right in front of an object
-        while True:
+        # Bound direction rejection too: an empty position need not have
+        # an allowed facing direction.
+        for _ in range(1000):
             super().place_agent(room.top, room.size, rand_dir, max_tries=1000)
             front_cell = self.grid.get(*self.front_pos)
             if front_cell is None or front_cell.type == "wall":
-                break
+                return self.agent_pos
 
-        return self.agent_pos
+        raise RecursionError("rejection sampling failed in place_agent")
 
     def connect_all(
         self, door_colors: list[str] = COLOR_NAMES, max_itrs: int = 5000
